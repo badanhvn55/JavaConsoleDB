@@ -26,13 +26,31 @@ public class StudentModel {
 
     }
 
-    public void insert(String name, String email, String rollNumber, String className, int status) {
+    public void insert(Student student) {
         try {
             Connection cnn = DAO.getConnection();
             Statement stt = cnn.createStatement();
-            String sqlQuery = "insert into student(name, email, roll_number, class_name, status) values"
-                    + "('"+name+"', '"+email+"', '"+rollNumber+"', '"+className+"', '"+status+"')";
-            stt.execute(sqlQuery);
+            
+            StringBuilder sqlQueryBuilder=new StringBuilder();
+            sqlQueryBuilder.append("insert into student(name, email, roll_number, class_name, status) values");
+            sqlQueryBuilder.append(" (");
+            sqlQueryBuilder.append("'"+student.getName()+"'");
+            sqlQueryBuilder.append(",");
+            sqlQueryBuilder.append("'"+student.getEmail()+"'");
+            sqlQueryBuilder.append(",");
+            sqlQueryBuilder.append("'"+student.getRollNumber()+"'");
+            sqlQueryBuilder.append(",");
+            sqlQueryBuilder.append("'"+student.getStatus()+"'");
+            sqlQueryBuilder.append(",");
+            sqlQueryBuilder.append("'"+student.getStatus()+"'");
+            sqlQueryBuilder.append(");");
+            System.out.println("------Cau lenh SQL------");
+            System.out.println(sqlQueryBuilder.toString());
+            System.out.println("------ket thuc cau lenh SQL");
+            
+//            String sqlQuery = "insert into student(name, email, roll_number, class_name, status) values"
+//                    + "('"+student.getName()+"', '"+student.getEmail()+"', '"+student.getRollNumber()+"', '"+student.getClassName()+"', '"+student.getStatus()+"')";
+            stt.execute(sqlQueryBuilder.toString());
             System.out.println("Thành công!");
         } catch (SQLException e) {
             System.err.println("lỗi trong quá trình update dữ liệu..." + e.getMessage());
@@ -44,7 +62,7 @@ public class StudentModel {
         ArrayList<Student> listStudent = new ArrayList<>();
         try {
             Statement stt = DAO.getConnection().createStatement();
-            ResultSet rs = stt.executeQuery("select * from Student");
+            ResultSet rs = stt.executeQuery("select * from student");
             while (rs.next()) {
                 Student student = new Student();
                 student.setId(rs.getInt("id"));
@@ -65,17 +83,17 @@ public class StudentModel {
 
     private DataSource dataSource;
 
-    public void update(String name, String email, String className, String rollNumber, int status, int id) {
+    public void update(Student student) {
         try {
 
             String sqlQuery = "update student set name=?, email=?, class_name=?, roll_number=?, status=? where id=?";
             PreparedStatement stm = DAO.getConnection().prepareStatement(sqlQuery);
-            stm.setString(1, name);
-            stm.setString(2, email);
-            stm.setString(3, className);
-            stm.setString(4, rollNumber);
-            stm.setInt(5, status);
-            stm.setInt(6, id);
+            stm.setString(1, student.getName());
+            stm.setString(2, student.getEmail());
+            stm.setString(3, student.getClassName());
+            stm.setString(4, student.getRollNumber());
+            stm.setInt(5, student.getStatus());
+            stm.setInt(6, student.getId());
 
             int rowsUpdated = stm.executeUpdate();
             if (rowsUpdated > 0) {
@@ -87,11 +105,11 @@ public class StudentModel {
 
     }
 
-    public void delete(String name) {
+    public void delete(Student student) {
         try {
-            String sqlQuery = "delete from student where name=?";
+            String sqlQuery = "delete from student where id=?";
             PreparedStatement stm = DAO.getConnection().prepareStatement(sqlQuery);
-            stm.setString(1, name);
+            stm.setInt(1, student.getId());
             int rowsDeleted=stm.executeUpdate();
             if(rowsDeleted>0){
                 System.out.println("Đã xóa thành công một sinh viên!");
@@ -103,20 +121,22 @@ public class StudentModel {
     }
 
     public static void main(String[] args) {
+        Student studentUpdate1=new Student();
+        studentUpdate1.setName("Nguyễn Bá Danh");
+        studentUpdate1.setEmail("vodanh@master.top.co");
+        studentUpdate1.setClassName("C1702G");
+        studentUpdate1.setStatus(5);
+        studentUpdate1.setRollNumber("A123");
+        studentUpdate1.setId(4);
         StudentModel studentModel = new StudentModel();
-        ArrayList<Student> listStudent = studentModel.getListStudent();;
-        //studentModel.insert("Nguyen Van Linh", "leelinh@kuto.com", "A987", "C2814G", 25);
+        
+        studentModel.getListStudent();
+        
+        //ArrayList<Student> listStudent = studentModel.getListStudent();
+        //studentModel.insert();
         //studentModel.delete("Nguyen Van Linh");
         //studentModel.update("Nguyen Van Linh", "linhlee@gmail.com", "C1803G", "A789", 5, 2);
-        listStudent.forEach(arr -> {
-            System.out.println(arr.getId());
-            System.out.println(arr.getName());
-            System.out.println(arr.getEmail());
-            System.out.println(arr.getClassName());
-            System.out.println(arr.getRollNumber());
-            System.out.println(arr.getStatus());
-
-        });
+        
     }
 
 }
